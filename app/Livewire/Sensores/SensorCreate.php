@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class Form extends Component
+class SensorCreate extends Component
 {
     public ?int $sensorId = null;
 
@@ -71,7 +71,7 @@ class Form extends Component
 
     public function render(): View
     {
-        return view('livewire.sensores.form', [
+        return view('livewire.sensores.sensor-create', [
             'ambientes' => Ambiente::orderBy('nome')->get(),
         ])->layout('components.layouts.app');
     }

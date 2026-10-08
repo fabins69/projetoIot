@@ -7,7 +7,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class Index extends Component
+class SensorIndex extends Component
 {
     use WithPagination;
 
@@ -47,7 +47,7 @@ class Index extends Component
             ->orderBy('codigo')
             ->paginate(10);
 
-        return view('livewire.sensores.index', compact('sensores'))
+        return view('livewire.sensores.sensor-index', compact('sensores'))
             ->layout('components.layouts.app');
     }
 }

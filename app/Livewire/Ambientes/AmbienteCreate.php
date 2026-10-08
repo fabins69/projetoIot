@@ -6,7 +6,7 @@ use App\Models\Ambiente;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class Form extends Component
+class AmbienteCreate extends Component
 {
     public ?int $ambienteId = null;
 
@@ -52,7 +52,7 @@ class Form extends Component
 
     public function render(): View
     {
-        return view('livewire.ambientes.form')
+        return view('livewire.ambientes.ambiente-create')
             ->layout('components.layouts.app');
     }
 }
