@@ -1,3 +1,4 @@
+<div>
 <main class="management-page">
     <section class="page-heading">
         <div><p class="eyebrow">CADASTROS</p><h1>Ambientes</h1><p class="page-subtitle">Organize os espaços onde seus dispositivos IoT estão instalados.</p></div>
@@ -41,3 +42,4 @@
         </div>
     </section>
 </main>
+</div>

@@ -7,7 +7,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class Index extends Component
+class AmbienteIndex extends Component
 {
     use WithPagination;
 
@@ -40,7 +40,7 @@ class Index extends Component
             ->orderBy('nome')
             ->paginate(10);
 
-        return view('livewire.ambientes.index', compact('ambientes'))
+        return view('livewire.ambientes.ambiente-index', compact('ambientes'))
             ->layout('components.layouts.app');
     }
 }
