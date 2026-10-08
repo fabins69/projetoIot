@@ -2,11 +2,7 @@
 
 use App\Livewire\Ambientes\AmbienteCreate;
 use App\Livewire\Ambientes\AmbienteIndex;
-use App\Livewire\Ambientes\Form as AmbienteForm;
-use App\Livewire\Ambientes\Index as AmbientesIndex;
 use App\Livewire\Dashboard\Dashboard;
-use App\Livewire\Sensores\Form as SensorForm;
-use App\Livewire\Sensores\Index as SensoresIndex;
 use App\Livewire\Sensores\SensorCreate;
 use App\Livewire\Sensores\SensorIndex;
 use Illuminate\Support\Facades\Route;

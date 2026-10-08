@@ -50,4 +50,11 @@ class SensorIndex extends Component
         return view('livewire.sensores.sensor-index', compact('sensores'))
             ->layout('components.layouts.app');
     }
+
+    public function status($id){
+        $sensor = Sensor::find($id);
+        $sensor->status = !$sensor->status;
+        $sensor->save();
+    }
+
 }

@@ -21,7 +21,15 @@
                         <td><span class="type-pill">{{ $sensor->tipo }}</span></td>
                         <td>{{ $sensor->ambiente?->nome ?? '—' }}</td>
                         <td>{{ number_format($sensor->registros_count, 0, ',', '.') }}</td>
-                        <td><span class="status-pill {{ $sensor->status ? 'is-active' : 'is-inactive' }}"><i></i>{{ $sensor->status ? 'Ativo' : 'Inativo' }}</span></td>
+                        <td>
+                            <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                            id="status-{{$sensor->id}}"
+                            wire:click='status({{$sensor->id}})'
+                            @checked($sensor->status)>
+                        <span class="badge bg-{{$sensor->status ? 'success' : 'danger'}}">
+                            {{$sensor->status ? 'Ativo' : 'Inativo'}}</span></div>
+                            {{ $sensor->status ? 'Ativo' : 'Inativo' }}</td>
                         <td class="actions-cell">
                             <a class="icon-action" href="{{ route('sensores.edit', $sensor) }}" aria-label="Editar {{ $sensor->codigo }}" title="Editar">✎</a>
                             @if ($sensor->registros_count === 0)

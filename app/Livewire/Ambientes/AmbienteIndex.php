@@ -43,4 +43,10 @@ class AmbienteIndex extends Component
         return view('livewire.ambientes.ambiente-index', compact('ambientes'))
             ->layout('components.layouts.app');
     }
+
+    public function status($id){
+        $ambiente = Ambiente::find($id);
+        $ambiente->status = !$ambiente->status;
+        $ambiente->save();
+    }
 }

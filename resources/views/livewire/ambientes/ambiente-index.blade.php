@@ -20,7 +20,15 @@
                     <tr wire:key="ambiente-{{ $ambiente->id }}">
                         <td><strong>{{ $ambiente->nome }}</strong><small class="table-description">{{ $ambiente->descricao ?: 'Sem descrição' }}</small></td>
                         <td>{{ $ambiente->sensores_count }} {{ $ambiente->sensores_count === 1 ? 'sensor' : 'sensores' }}</td>
-                        <td><span class="status-pill {{ $ambiente->status ? 'is-active' : 'is-inactive' }}"><i></i>{{ $ambiente->status ? 'Ativo' : 'Inativo' }}</span></td>
+                        <td>
+                            <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                            id="status-{{$ambiente->id}}"
+                            wire:click='status({{$ambiente->id}})'
+                            @checked($ambiente->status)>
+                        <span class="badge bg-{{$ambiente->status ? 'success' : 'danger'}}">
+                            {{$ambiente->status ? 'Ativo' : 'Inativo'}}</span></div>
+                            {{ $ambiente->status ? 'Ativo' : 'Inativo' }}</td>
                         <td class="actions-cell">
                             <a class="icon-action" href="{{ route('ambientes.edit', $ambiente) }}" aria-label="Editar {{ $ambiente->nome }}" title="Editar">✎</a>
                             @if ($ambiente->sensores_count === 0)
