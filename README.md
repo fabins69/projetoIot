@@ -12,12 +12,12 @@ O projetoIoT FB é focado para o monitoramento dos ambientes, registrando leitur
 ## Instalação local
 
 Para desenvolvimento com recarga de assets, use `npm run dev` em outro terminal.
-´´´composer update´´´
-´´´npm install´´´
-´´´configurar .env´´´
-´´´php artisan migrate´´´
-´´´php artisan db:seed´´´
-´´´php artisan key:generate´´´
+´composer update´
+´npm install´
+´configurar .env´
+´php artisan migrate´
+´php artisan db:seed´
+´php artisan key:generate´
 
 
 
