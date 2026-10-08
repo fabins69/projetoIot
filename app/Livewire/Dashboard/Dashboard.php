@@ -2,40 +2,39 @@
 
 namespace App\Livewire\Dashboard;
 
+use App\Models\Ambiente;
+use App\Models\Registro;
+use App\Models\Sensor;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
-    public $leituraAtual;
-    public $historico;
-    public $logs;
-
-    public function mount()
-    {
-        $this->leituraAtual = [
-            'temperatura' => 24.5,
-            'umidade' => 62.0,
-            'dispositivo' => 'ESP32 - Ativo',
-            'status' => 'ONLINE'
-        ];
-
-        $this->historico = [
-            'labels' => ['15:10', '15:11', '15:12', '15:13', '15:14', '15:15', '15:16', '15:17', '15:18'],
-            'temperatura' => [23.4, 23.8, 24.1, 24.0, 24.5, 24.2, 24.6, 24.3, 24.5],
-            'umidade' => [58.2, 59.0, 60.1, 61.2, 62.0, 61.5, 62.1, 63.0, 62.0]
-        ];
-
-        $this->logs = [
-            ['horario' => '15:18:02', 'status' => 'Ok', 'classe' => 'success', 'mensagem' => 'Leitura de sensores processada com sucesso.'],
-            ['horario' => '15:15:00', 'status' => 'Info', 'classe' => 'info', 'mensagem' => 'Dispositivo conectado com sucesso ao broker.'],
-            ['horario' => '15:10:12', 'status' => 'Aviso', 'classe' => 'warning', 'mensagem' => 'Oscilação leve detectada no sinal WiFi.'],
-        ];
-    }
-
     public function render()
     {
-        // Define o layout global e injeta a view de conteúdo de forma limpa
-        return view('livewire.dashboard.dashboard')
-            ->layout('components.layouts.app');
+        $registros = Registro::with(['sensor.ambiente'])
+            ->orderByDesc('data_hora')
+            ->limit(24)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $maisRecentes = $registros->reverse()->take(6)->values();
+        $ultimoRegistro = $registros->last();
+
+        $grafico = [
+            'labels' => $registros->map(fn (Registro $registro) => $registro->data_hora?->format('H:i') ?? '—')->all(),
+            'temperatura' => $registros->map(fn (Registro $registro) => is_numeric($registro->valor) ? (float) $registro->valor : null)->all(),
+            'umidade' => $registros->map(fn (Registro $registro) => is_numeric($registro->umidade) ? (float) $registro->umidade : null)->all(),
+        ];
+
+        return view('livewire.dashboard.dashboard', [
+            'totalAmbientes' => Ambiente::count(),
+            'totalSensores' => Sensor::count(),
+            'sensoresAtivos' => Sensor::where('status', true)->count(),
+            'totalLeituras' => Registro::count(),
+            'ultimoRegistro' => $ultimoRegistro,
+            'maisRecentes' => $maisRecentes,
+            'grafico' => $grafico,
+        ])->layout('components.layouts.app');
     }
 }

@@ -1,66 +1,68 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Projeto IoT — Monitoramento
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicação Laravel 11 com Livewire para organizar ambientes e sensores e acompanhar leituras enviadas pela API.
 
-## About Laravel
+## Funcionalidades
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Dashboard responsivo com contadores reais, sensores ativos, última leitura, gráfico das últimas 24 leituras e atividade recente.
+- CRUDs de ambientes e sensores inteiramente em Livewire (listagem, formulários, busca, paginação e ações), sem controllers de recurso.
+- Associação de cada sensor a um ambiente.
+- Exclusão protegida: ambientes com sensores e sensores com leituras não podem ser removidos; assim o histórico permanece preservado.
+- API JSON para inserir leituras e consultar o último valor por código do sensor.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2 ou superior, extensões exigidas pelo Laravel 11 e Composer.
+- Node.js e npm.
+- Banco SQLite (padrão do `.env.example`) ou outro banco suportado pelo Laravel.
 
-## Learning Laravel
+## Instalação local
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+cp .env.example .env
+composer install
+php artisan key:generate
+mkdir -p database && touch database/database.sqlite
+php artisan migrate
+npm install
+npm run build
+php artisan serve
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Acesse `http://127.0.0.1:8000`. O dashboard redireciona da raiz `/` para `/dashboard`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Para desenvolvimento com recarga de assets, use `npm run dev` em outro terminal.
 
-## Laravel Sponsors
+## Rotas web
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- `/dashboard` — visão geral.
+- `/ambientes` — listar, buscar, criar, editar e excluir ambientes.
+- `/sensores` — listar, buscar, criar, editar e excluir sensores.
 
-### Premium Partners
+## API de leituras
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Registrar leitura
 
-## Contributing
+`POST /api/registro` — JSON:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```json
+{
+  "cod_sensor": "TEMP-01",
+  "valor": 24.3,
+  "umidade": 51.2
+}
+```
 
-## Code of Conduct
+O código deve existir e `umidade` deve estar entre 0 e 100. Resposta de sucesso: HTTP 201 com o registro criado.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Consultar último valor
 
-## Security Vulnerabilities
+`GET /api/registro/valor?cod_sensor=TEMP-01`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Responde com `{"valor":"24.3"}`. Dados inválidos retornam erros JSON de validação; sensor sem registros retorna HTTP 404.
 
-## License
+## Testes
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan test
+```
