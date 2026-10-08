@@ -5,7 +5,7 @@ Aplicação Laravel 11 com Livewire para organizar ambientes e sensores e acompa
 ## Funcionalidades
 
 - Dashboard responsivo com contadores reais, sensores ativos, última leitura, gráfico das últimas 24 leituras e atividade recente.
-- CRUD de ambientes e sensores, incluindo busca, paginação, validação e ativação/inativação.
+- CRUDs de ambientes e sensores inteiramente em Livewire (listagem, formulários, busca, paginação e ações), sem controllers de recurso.
 - Associação de cada sensor a um ambiente.
 - Exclusão protegida: ambientes com sensores e sensores com leituras não podem ser removidos; assim o histórico permanece preservado.
 - API JSON para inserir leituras e consultar o último valor por código do sensor.

@@ -2,11 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Ambientes\Form as AmbienteForm;
+use App\Livewire\Ambientes\Index as AmbientesIndex;
+use App\Livewire\Sensores\Form as SensorForm;
+use App\Livewire\Sensores\Index as SensoresIndex;
 use App\Models\Ambiente;
 use App\Models\Registro;
 use App\Models\Sensor;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class IoTManagementTest extends TestCase
@@ -19,21 +24,26 @@ class IoTManagementTest extends TestCase
         $this->withoutMiddleware(ValidateCsrfToken::class);
     }
 
-    public function test_ambiente_can_be_created_updated_and_deleted(): void
+    public function test_ambiente_can_be_created_updated_and_deleted_with_livewire(): void
     {
-        $this->post(route('ambientes.store'), [
-            'nome' => 'Laboratório',
-            'descricao' => 'Bancada principal',
-            'status' => '1',
-        ])->assertRedirect(route('ambientes.index'));
+        Livewire::test(AmbienteForm::class)
+            ->set('nome', 'Laboratório')
+            ->set('descricao', 'Bancada principal')
+            ->set('status', true)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('ambientes.index'));
 
         $ambiente = Ambiente::where('nome', 'Laboratório')->firstOrFail();
         $this->assertTrue($ambiente->status);
 
-        $this->put(route('ambientes.update', $ambiente), [
-            'nome' => 'Laboratório IoT',
-            'descricao' => 'Bancada de testes',
-        ])->assertRedirect(route('ambientes.index'));
+        Livewire::test(AmbienteForm::class, ['ambiente' => (string) $ambiente->id])
+            ->set('nome', 'Laboratório IoT')
+            ->set('descricao', 'Bancada de testes')
+            ->set('status', false)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('ambientes.index'));
 
         $this->assertDatabaseHas('ambientes', [
             'id' => $ambiente->id,
@@ -41,33 +51,39 @@ class IoTManagementTest extends TestCase
             'status' => 0,
         ]);
 
-        $this->delete(route('ambientes.destroy', $ambiente))
-            ->assertRedirect(route('ambientes.index'));
+        Livewire::test(AmbientesIndex::class)
+            ->call('delete', $ambiente->id)
+            ->assertSee('Ambiente removido com sucesso.');
+
         $this->assertDatabaseMissing('ambientes', ['id' => $ambiente->id]);
     }
 
-    public function test_sensor_can_be_created_updated_and_deleted(): void
+    public function test_sensor_can_be_created_updated_and_deleted_with_livewire(): void
     {
         $ambiente = Ambiente::create(['nome' => 'Estufa', 'status' => true]);
 
-        $this->post(route('sensores.store'), [
-            'ambiente_id' => $ambiente->id,
-            'codigo' => 'TEMP-01',
-            'tipo' => 'TEMPERATURA',
-            'descricao' => 'Sensor central',
-            'status' => '1',
-        ])->assertRedirect(route('sensores.index'));
+        Livewire::test(SensorForm::class)
+            ->set('ambienteId', $ambiente->id)
+            ->set('codigo', 'TEMP-01')
+            ->set('tipo', 'TEMPERATURA')
+            ->set('descricao', 'Sensor central')
+            ->set('status', true)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('sensores.index'));
 
         $sensor = Sensor::where('codigo', 'TEMP-01')->firstOrFail();
         $this->assertSame($ambiente->id, $sensor->ambiente->id);
 
-        $this->put(route('sensores.update', $sensor), [
-            'ambiente_id' => $ambiente->id,
-            'codigo' => 'TEMP-01',
-            'tipo' => 'TEMPERATURA',
-            'descricao' => 'Sensor atualizado',
-            'status' => '1',
-        ])->assertRedirect(route('sensores.index'));
+        Livewire::test(SensorForm::class, ['sensor' => (string) $sensor->id])
+            ->set('ambienteId', $ambiente->id)
+            ->set('codigo', 'TEMP-01')
+            ->set('tipo', 'TEMPERATURA')
+            ->set('descricao', 'Sensor atualizado')
+            ->set('status', true)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('sensores.index'));
 
         $this->assertDatabaseHas('sensors', [
             'id' => $sensor->id,
@@ -75,12 +91,12 @@ class IoTManagementTest extends TestCase
             'status' => 1,
         ]);
 
-        $this->delete(route('sensores.destroy', $sensor))
-            ->assertRedirect(route('sensores.index'));
+        Livewire::test(SensoresIndex::class)->call('delete', $sensor->id)
+            ->assertSee('Sensor removido com sucesso.');
         $this->assertDatabaseMissing('sensors', ['id' => $sensor->id]);
     }
 
-    public function test_records_prevent_deleting_their_sensor_and_environment(): void
+    public function test_livewire_delete_actions_preserve_linked_records(): void
     {
         $ambiente = Ambiente::create(['nome' => 'Sala técnica', 'status' => true]);
         $sensor = Sensor::create([
@@ -97,21 +113,19 @@ class IoTManagementTest extends TestCase
             'data_hora' => now(),
         ]);
 
-        $this->from(route('sensores.index'))
-            ->delete(route('sensores.destroy', $sensor))
-            ->assertRedirect(route('sensores.index'))
-            ->assertSessionHas('error');
+        Livewire::test(SensoresIndex::class)
+            ->call('delete', $sensor->id)
+            ->assertSee('O histórico foi preservado');
         $this->assertDatabaseHas('sensors', ['id' => $sensor->id]);
 
-        $this->from(route('ambientes.index'))
-            ->delete(route('ambientes.destroy', $ambiente))
-            ->assertRedirect(route('ambientes.index'))
-            ->assertSessionHas('error');
+        Livewire::test(AmbientesIndex::class)
+            ->call('delete', $ambiente->id)
+            ->assertSee('possui sensores vinculados');
         $this->assertDatabaseHas('ambientes', ['id' => $ambiente->id]);
         $this->assertDatabaseHas('registros', ['sensor_id' => $sensor->id]);
     }
 
-    public function test_crud_list_create_and_edit_screens_render(): void
+    public function test_livewire_crud_list_create_and_edit_pages_render(): void
     {
         $ambiente = Ambiente::create(['nome' => 'Estúdio', 'status' => true]);
         $sensor = Sensor::create([
@@ -123,11 +137,11 @@ class IoTManagementTest extends TestCase
         ]);
 
         $this->get(route('ambientes.index'))->assertOk()->assertSee('Estúdio');
-        $this->get(route('ambientes.create'))->assertOk()->assertSee('Novo ambiente');
+        $this->get(route('ambientes.create'))->assertOk()->assertSee('wire:submit="save"', false);
         $this->get(route('ambientes.edit', $ambiente))->assertOk()->assertSee('Editar ambiente');
 
         $this->get(route('sensores.index'))->assertOk()->assertSee('UMID-01');
-        $this->get(route('sensores.create'))->assertOk()->assertSee('Novo sensor');
+        $this->get(route('sensores.create'))->assertOk()->assertSee('wire:submit="save"', false);
         $this->get(route('sensores.edit', $sensor))->assertOk()->assertSee('Editar sensor');
     }
 
