@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ambiente extends Model
 {
@@ -12,10 +13,18 @@ class Ambiente extends Model
     protected $fillable = [
         'nome',
         'descricao',
-        'status'
+        'status',
     ];
 
-    public function sensores(){
+    protected function casts(): array
+    {
+        return [
+            'status' => 'boolean',
+        ];
+    }
+
+    public function sensores(): HasMany
+    {
         return $this->hasMany(Sensor::class);
     }
 }
