@@ -13,7 +13,7 @@
     <header class="topbar">
         <a class="brand" href="{{ route('dashboard') }}" aria-label="Projeto IoT - início">
             <span class="brand-mark">i</span>
-            <span>projeto<span class="brand-light">iot</span><small>MONITORAMENTO</small></span>
+            <span>Projeto<span class="brand-light">Iot</span><small>MONITORAMENTO</small></span>
         </a>
         <nav class="main-nav" aria-label="Navegação principal">
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'nav-active' : '' }}"><span>▦</span> Dashboard</a>
